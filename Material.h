@@ -66,3 +66,41 @@ private:
     Color3d albedo{};
     double fuzz;
 };
+
+class Dielectric : public Material
+{
+public:
+    Dielectric(double refractiveIndex)
+    {
+        this->refractiveIndex = refractiveIndex;
+    }
+
+    bool scatter(const Ray& rIn, const HitInfo& info, Color3d& attenuation, Ray& scattered) const override
+    {
+        attenuation = Color3d{ 1.0, 1.0, 1.0 };
+        double ri{ info.frontFace ? (1.0 / refractiveIndex) : refractiveIndex };
+
+        Vector3d unitDirection{ VectorAddons::unitVector(rIn.direction) };
+
+        double cosTheta{ std::fmin(1.0, VectorAddons::dotProduct(-unitDirection, info.normal)) };
+        double sinTheta{ std::sqrt(1.0 - cosTheta * cosTheta) };
+
+        bool cannotRefract{ ri * sinTheta > 1.0 };
+        Vector3d direction{ (cannotRefract || (reflectance(cosTheta, ri) > Utils::randomDouble())) ? VectorAddons::reflect(unitDirection, info.normal) : VectorAddons::refract(unitDirection, info.normal, ri) };
+
+
+        scattered = Ray{ info.point, direction };
+        return true;
+    }
+
+private:
+    double refractiveIndex{ 0 }; // relative refractive index
+
+    static double reflectance(double cosine, double refractionIndex)
+    {
+        // using Schlick's approx. for reflectance
+        double r0{ (1 - refractionIndex) / (1 + refractionIndex) };
+        r0 *= r0;
+        return r0 + (1.0 - r0) * std::pow(1 - cosine, 5);
+    }
+};

@@ -106,4 +106,13 @@ namespace VectorAddons
     {
         return v - 2.0 * dotProduct(v, n) * n;
     }
+
+    inline Vector3d refract(const Vector3d& R, const Vector3d& n, double etaIOverEtaT)
+    {
+        double cosTheta{ std::fmin(1.0, dotProduct(-R, n)) };
+        Vector3d ROutPerp{ etaIOverEtaT * (R + cosTheta * n) };
+        Vector3d ROutParallel{ -std::sqrt(std::fabs(1.0 - lengthSquared(ROutPerp))) * n };
+
+        return ROutPerp + ROutParallel;
+    }
 }
