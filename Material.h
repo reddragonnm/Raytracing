@@ -86,7 +86,7 @@ public:
         double sinTheta{ std::sqrt(1.0 - cosTheta * cosTheta) };
 
         bool cannotRefract{ ri * sinTheta > 1.0 };
-        Vector3d direction{ (cannotRefract || (reflectance(cosTheta, ri) > Utils::randomDouble())) ? VectorAddons::reflect(unitDirection, info.normal) : VectorAddons::refract(unitDirection, info.normal, ri) };
+        Vector3d direction{ (cannotRefract || reflectance(cosTheta, ri) > Utils::randomDouble()) ? VectorAddons::reflect(unitDirection, info.normal) : VectorAddons::refract(unitDirection, info.normal, ri) };
 
 
         scattered = Ray{ info.point, direction };

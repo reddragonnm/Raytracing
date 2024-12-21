@@ -62,9 +62,13 @@ namespace VectorAddons
     {
         static const Interval intensity{ 0.0, 1.0 };
 
-        auto r{ static_cast<sf::Uint8>(intensity.clamp(c.x) * 255) };
-        auto g{ static_cast<sf::Uint8>(intensity.clamp(c.y) * 255) };
-        auto b{ static_cast<sf::Uint8>(intensity.clamp(c.z) * 255) };
+        auto r{ static_cast<sf::Uint8>(intensity.clamp(linearToGamma(c.x)) * 255) };
+        auto g{ static_cast<sf::Uint8>(intensity.clamp(linearToGamma(c.y)) * 255) };
+        auto b{ static_cast<sf::Uint8>(intensity.clamp(linearToGamma(c.z)) * 255) };
+
+        //auto r{ static_cast<sf::Uint8>(intensity.clamp(c.x) * 255) };
+        //auto g{ static_cast<sf::Uint8>(intensity.clamp(c.y) * 255) };
+        //auto b{ static_cast<sf::Uint8>(intensity.clamp(c.z) * 255) };
         return sf::Color{ r, g, b };
 
     }
@@ -94,6 +98,15 @@ namespace VectorAddons
     {
         Vector3d onUnitSphere{ randomUnitVec() };
         return (dotProduct(onUnitSphere, normal) > 0.0) ? onUnitSphere : -onUnitSphere;
+    }
+
+    inline Vector3d randomInUnitDisk()
+    {
+        while (true)
+        {
+            Vector3d p{ Utils::randomDouble(-1, 1), Utils::randomDouble(-1, 1), 0 };
+            if (lengthSquared(p) < 1) return p;
+        }
     }
 
     inline bool isNearZero(const Vector3d& v)
